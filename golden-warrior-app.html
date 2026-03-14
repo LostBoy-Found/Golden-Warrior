@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#111111">
+<title>Golden Warrior</title>
+<style>
+:root {
+  --gold: #D4A017;
+  --gold-dim: #9B7515;
+  --bg: #111;
+  --surface: #1C1C1C;
+  --surface2: #252525;
+  --border: #333;
+  --text: #F0F0F0;
+  --muted: #888;
+  --green: #2ECC71;
+  --red: #E74C3C;
+  --blue: #3498DB;
+  --nav-h: 62px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--gold);
+  padding: 11px 16px 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.app-header h1 { font-size: 1.3rem; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 0.06em; }
+.unit-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.15s;
+}
+.unit-btn.active { color: var(--gold); border-color: var(--gold-dim); background: #1a1200; }
+
+/* ── TIMER ── */
+.timer-wrap {
+  background: #141000;
+  border-bottom: 2px solid var(--gold-dim);
+  padding: 10px 14px;
+  flex-shrink: 0;
+  display: none;
+  gap: 10px;
+  align-items: center;
+}
+.timer-wrap.show { display: flex; }
+.t-count {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--gold);
+  min-width: 70px;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.t-count.low { color: var(--red); animation: blink .5s infinite alternate; }
+.t-count.done { color: var(--green); animation: none; }
+@keyframes blink { to { opacity: .4; } }
+.t-presets { display: flex; gap: 5px; flex: 1; flex-wrap: wrap; }
+.t-preset {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.t-preset:active, .t-preset.selected { background: var(--gold-dim); color: #000; border-color: var(--gold); }
+.t-btns { display: flex; gap: 6px; }
+.t-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.t-btn.go { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+
+/* ── SCROLL AREA ── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 10px 6px;
+}
+.scroll-area::-webkit-scrollbar { width: 3px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-shrink: 0;
+  height: var(--nav-h);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--muted);
+  gap: 2px;
+  transition: color .15s;
+  padding: 4px 2px;
+}
+.nav-day { font-size: 1.05rem; font-weight: 900; }
+.nav-sub { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.nav-btn.active { color: var(--gold); }
+
+/* ── DAY HEADER ── */
+.day-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.day-hdr-title { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; }
+.type-badge {
+  font-size: 0.68rem; font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.badge-upper { background: #152035; color: #6aaff0; }
+.badge-lower { background: #152515; color: #6af090; }
+.badge-both  { background: #251525; color: #c06af0; }
+
+/* ── EXERCISE CARD ── */
+.ex-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 9px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.ex-card.open { border-color: var(--gold-dim); }
+
+.ex-hdr {
+  padding: 11px 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  user-select: none;
+}
+.ex-meta { flex: 1; }
+.ex-n { font-size: 0.68rem; color: var(--gold-dim); font-weight: 700; margin-bottom: 1px; }
+.ex-opt-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  background: #2a2a2a;
+  color: var(--muted);
+  padding: 1px 6px;
+  border-radius: 8px;
+  border: 1px dashed #444;
+  margin-bottom: 3px;
+}
+.ex-name { font-size: 0.97rem; font-weight: 700; line-height: 1.2; margin-bottom: 5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  font-size: 0.64rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: .03em;
+}
+.c-sets { background: #152033; color: #6aaff0; }
+.c-reps { background: #152515; color: #6af090; }
+.c-rest { background: #332515; color: #f0c06a; }
+.c-prog { background: #251535; color: #c06af0; }
+.chevron { color: var(--muted); font-size: 0.7rem; margin-top: 4px; flex-shrink: 0; transition: transform .2s; }
+.ex-card.open .chevron { transform: rotate(180deg); }
+
+/* ── EXERCISE BODY ── */
+.ex-body { display: none; border-top: 1px solid var(--border); }
+.ex-card.open .ex-body { display: block; }
+
+.info-row {
+  padding: 7px 13px;
+  font-size: 0.77rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  line-height: 1.45;
+  color: #bbb;
+}
+.info-row strong { color: #e0e0e0; }
+
+.note-toggle-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 7px 13px;
+  text-align: left;
+  color: var(--gold-dim);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  display: flex;
+  justify-content: space-between;
+}
+.note-body {
+  display: none;
+  padding: 9px 13px 11px;
+  font-size: 0.79rem;
+  color: #aaa;
+  line-height: 1.65;
+  background: #161616;
+  border-bottom: 1px solid var(--border);
+}
+.note-body.show { display: block; }
+
+/* ── LOGGER ── */
+.logger { padding: 10px 13px 13px; }
+.logger-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 9px;
+}
+.logger-label { font-size: 0.72rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .06em; }
+.log-actions { display: flex; gap: 5px; }
+.act-btn {
+  font-size: 0.7rem;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 600;
+}
+.act-btn.add { border-color: #1e3a1e; color: var(--green); }
+.act-btn.clr { border-color: #3a1e1e; color: var(--red); }
+
+.set-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 1fr 38px;
+  gap: 6px;
+  align-items: end;
+  margin-bottom: 7px;
+}
+.s-num { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-align: center; padding-bottom: 9px; }
+.inp-wrap { display: flex; flex-direction: column; gap: 2px; }
+.inp-lbl { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding-left: 2px; }
+.s-inp {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 8px 4px;
+  text-align: center;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.s-inp:focus { outline: none; border-color: var(--gold-dim); background: #1e1e10; }
+.s-inp.last { border-color: #3a3010; color: #d4c56a; }
+.done-btn {
+  width: 36px; height: 36px;
+  border-radius: 7px;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.done-btn.done { background: #152515; border-color: var(--green); color: var(--green); }
+.set-row.is-done .s-inp { opacity: .55; }
+
+.rest-row {
+  display: flex;
+  gap: 5px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+.rest-btn {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 4px;
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.rest-btn.main { background: #1a1200; border-color: var(--gold-dim); color: var(--gold); font-weight: 700; }
+
+/* ── INFO PAGE ── */
+.info-pg { padding: 2px 0 20px; }
+.plans-grid { display: flex; gap: 7px; margin-bottom: 12px; }
+.plan-c {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 6px;
+  text-align: center;
+}
+.plan-l { font-size: 1.6rem; font-weight: 900; color: var(--gold); }
+.plan-d { font-size: 0.66rem; color: var(--muted); margin-bottom: 2px; }
+.plan-t { font-size: 0.7rem; color: #ccc; line-height: 1.3; }
+.info-note {
+  background: #1a1700;
+  border-left: 3px solid var(--gold-dim);
+  border-radius: 0 6px 6px 0;
+  padding: 9px 12px;
+  font-size: 0.78rem;
+  color: #bbb;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.info-note strong { color: var(--gold); }
+.faq-section-title {
+  font-size: 0.75rem; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .07em;
+  padding: 2px 0 8px;
+}
+.faq-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 7px;
+  overflow: hidden;
+}
+.faq-q {
+  padding: 11px 13px;
+  font-size: 0.87rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.faq-q::after { content: '▼'; font-size: 0.62rem; color: var(--muted); transition: transform .2s; }
+.faq-item.open .faq-q::after { transform: rotate(180deg); }
+.faq-a {
+  display: none;
+  padding: 10px 13px 13px;
+  font-size: 0.81rem;
+  line-height: 1.65;
+  color: #bbb;
+  border-top: 1px solid var(--border);
+}
+.faq-item.open .faq-a { display: block; }
+.faq-a ol, .faq-a ul { padding-left: 16px; margin-top: 6px; }
+.faq-a li { margin-bottom: 3px; }
+.faq-a strong { color: var(--text); }
+.eg {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.rpe-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 6px; }
+.rpe-table th { background: var(--surface2); color: var(--gold); padding: 5px 8px; text-align: left; }
+.rpe-table td { padding: 5px 8px; border-bottom: 1px solid var(--border); }
+.rpe-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>⚔ Golden Warrior</h1>
+  <button class="unit-btn" id="unitBtn" onclick="toggleUnit()">LBS</button>
+</header>
+
+<div class="timer-wrap" id="timerWrap">
+  <div class="t-count" id="tCount">2:00</div>
+  <div class="t-presets">
+    <button class="t-preset" onclick="setTimer(60)">1:00</button>
+    <button class="t-preset" onclick="setTimer(90)">1:30</button>
+    <button class="t-preset" onclick="setTimer(120)">2:00</button>
+    <button class="t-preset" onclick="setTimer(150)">2:30</button>
+    <button class="t-preset" onclick="setTimer(180)">3:00</button>
+  </div>
+  <div class="t-btns">
+    <button class="t-btn" id="tPause" onclick="togglePause()">⏸</button>
+    <button class="t-btn" onclick="dismissTimer()">✕</button>
+  </div>
+</div>
+
+<div class="scroll-area" id="scrollArea"></div>
+
+<nav class="bottom-nav" id="bottomNav"></nav>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// PROGRAM DATA
+// ═══════════════════════════════════════════════════════
+const DAYS = [
+  {
+    id:'d1', label:'Day 1', sub:'Upper 1', type:'upper',
+    exercises:[
+      { id:'bench', name:'Bench Press', opt:false,
+        opts:'Close Grip · Wide Grip · Feet-Up · Smith Machine',
+        sets:3, reps:'12 / 8 / 5 ★', rest:150, prog:'Triple Progression',
+        scheme:'1 Top Set + 2–3 Back-offs at −12–20% load. Rotate rep range every 4 weeks: 12 → 8 → 5.',
+        note:'Lower under control, lightly tap chest. Don\'t pause at lockout — immediately start next rep. Rep quality before adding weight. Top set sets baseline week 1 — don\'t fail it. Close grip: lead elbows down, lock out fully. Wide grip: ¾ reps, skip lockout for better pec tension.' },
+      { id:'laterals', name:'Lateral Raises / Shoulder Press', opt:false,
+        opts:'DB Lateral · Cable Lateral · IYT Raises · Lu Raises  OR  Seated OHP',
+        sets:3, reps:'12–15', rest:60, prog:'Dynamic Double Progression',
+        scheme:'1 Top Set (12–15) + 2–3 Drop Sets with NO rest between. If doing OHP instead: 2–3 straight sets × 8–12.',
+        note:'Drop sets = top set, drop weight, immediately do another tough set — repeat 2–3 times total, zero rest. DB laterals: raise in a pain-free path, pause briefly at top. Cable laterals: the stretch at the bottom is where the money is, don\'t pause at top.' },
+      { id:'curl1', name:'Main Curl', opt:false,
+        opts:'Standing BB Curl · Preacher Curl · Standing DB Curl',
+        sets:3, reps:'12 / 8 / 5 ★', rest:105, prog:'Triple Progression',
+        scheme:'1 Top Set + 2–3 Back-offs at −12–20% load. Rotate every 4 weeks: 12 → 8 → 5.',
+        note:'Preacher is most foolproof for strict form. Keep wrists neutral. Use your arm to finish reps — not momentum. Flex triceps at bottom of each rep to reset. Barbell: back stationary, triceps flexed at start, raise shoulders slightly as you curl.' },
+      { id:'hammer', name:'Hammer / Reverse Curl', opt:true,
+        opts:'Hammer Curl · Reverse Curl',
+        sets:2, reps:'8–12', rest:105, prog:'Dynamic Double Progression',
+        scheme:'2–3 sets straight. OR after several weeks: 1 top set + 2–3 drop sets.',
+        note:'Brachialis + forearm builder. Keep upper arm in line with your body — don\'t let it turn into a row. Hammer curls become ego lifts fast. Reverse curl: bring to forehead, slightly wider than shoulder width, elbows slightly raised.' },
+      { id:'tris1', name:'Main Triceps', opt:false,
+        opts:'Pressdown · Skull Crusher · JM Press · Smith Machine Skull or JM Press',
+        sets:3, reps:'15 / 12 / 10 ★', rest:105, prog:'Triple Progression',
+        scheme:'1 Top Set + 2–3 Back-offs at −12–20% load. Rotate every 4 weeks: 15 → 12 → 10.',
+        note:'Pick the variation easiest on your elbows. Pressdown: feet wide, elbows track back at top, push slightly forward at bottom, pause at lockout AND at full stretch. Skull crusher: lead with elbows on way down, pause under tension at bottom — do not relax.' },
+      { id:'pull1', name:'Pull-Up / Wide Lat Pulldown', opt:false,
+        opts:'Pull-Up · Assisted Pull-Up · Wide-Grip Lat Pulldown',
+        sets:3, reps:'10–15', rest:120, prog:'Triple Progression',
+        scheme:'3 straight sets.',
+        note:'Pull to sternum if possible. Don\'t dead hang — keep tension on the back. Arch your back. Lower under control. Pulldown: extend set until you can no longer reach eye level (not just chin level). Slow reps down as range of motion decreases.' },
+      { id:'legraise', name:'Leg Raises (Lower Abs)', opt:false,
+        opts:'Hanging · Floor · Dip Tower',
+        sets:3, reps:'12–20', rest:75, prog:'Double Progression',
+        scheme:'3 sets. OR optional 3–4 min cluster set instead.',
+        note:'Raise only ¾ of the way — do NOT lower all the way down. Keeps tension on lower abs and eliminates hip flexors from the movement. Pause at the top and bottom. Weighted version: drop set to bodyweight after your weighted top set.' }
+    ]
+  },
+  {
+    id:'d2', label:'Day 2', sub:'Back+Legs', type:'both',
+    exercises:[
+      { id:'squat1', name:'Quad-Focused Squat (ATG)', opt:false,
+        opts:'High Bar Platz · Hack Squat · Belt Squat · Smith Squat · Deficit Smith Split Squat',
+        sets:3, reps:'Pyramid: 12–15 → 8–10 → 5–8', rest:180, prog:'Triple Progression',
+        scheme:'Set 1: 12–15 (2 RiT) → add 10lb → Set 2: 8–10 → add 10lb → Set 3: 5–8. ALL reps ATG.',
+        note:'Go as low as possible, actively push knees over toes. Hold tension briefly at bottom. 1 rest pause allowed per set. Terminate the set when you start leaning forward and recruiting your low back — quad work only. This keeps energy available for back work after.' },
+      { id:'sissy1', name:'Sissy Squats', opt:true,
+        opts:'Use cable stand loaded FULLY for balance only. Or side of rack.',
+        sets:2, reps:'10–15', rest:75, prog:'Double Progression',
+        scheme:'2–3 sets. Optional 3–4 min cluster set.',
+        note:'Hands are just hooks for balance — all the work is legs. Hips stay extended forward the whole time. Start with a faster cadence and slow down each rep more as you approach failure. Reps unbroken.' },
+      { id:'row1', name:'Row + Kelso Shrug Superset  OR  Hip Hinge', opt:false,
+        opts:'Cable Row+Kelso · Deficit BB Row+Kelso · Snatch Grip Back Extensions · Paused RDL · SLDL',
+        sets:2, reps:'8–12', rest:150, prog:'Double Progression',
+        scheme:'2 sets (rows) or 3 sets (ext/RDL). Row to failure → immediately Kelso Shrugs without any rest.',
+        note:'Kelso Shrugs: pull shoulder blades DOWN and BACK, hard squeeze, let them hang and stretch fully, repeat until the bar won\'t move. Your mid-back will be sore in an entirely new way. RDL/SLDL: back straight, push the hip hinge, pause at full stretch 1–2 sec.' },
+      { id:'lat_extra', name:'Extra Lat / Rear Delt Work', opt:true,
+        opts:'Cable Lat Prayers · Pullover Machine · DB Pullovers · Rear Delt Rows',
+        sets:2, reps:'8–12', rest:90, prog:'Double Progression',
+        scheme:'2–3 sets.',
+        note:'Add if you need more lat volume or if you chose Snatch Grip Back Extensions as your main movement. DB Pullovers: bench sideways (hamburger), hips low, bring dumbbell as low as you still feel tension on the back, shorten reps as you fatigue.' },
+      { id:'hamcurl1', name:'Lying / Standing Ham Curl', opt:false,
+        opts:'Lying Ham Curl · Standing Ham Curl · Single-Leg Lying (save Seated for Day 4)',
+        sets:2, reps:'10–15', rest:120, prog:'Dynamic Double Progression',
+        scheme:'2–3 sets.',
+        note:'Pause under tension at full stretch — this is what makes it effective. Lower under control EVERY rep. End the set when your legs can\'t reach 90°. Add padding under hips on lying curl to extend range of motion.' },
+      { id:'calves1', name:'Standing Calf Raises', opt:false,
+        opts:'Any loading method available',
+        sets:1, reps:'To failure (1 rest pause)', rest:0, prog:'Beat last session',
+        scheme:'1 set only — trust it.',
+        note:'Full stretch → 3-second pause at the VERY BOTTOM (eliminates the Achilles stretch reflex) → raise only HALFWAY → repeat to failure. Allow one rest pause. The 3-second bottom pause is non-negotiable — it\'s what makes one set enough.' }
+    ]
+  },
+  {
+    id:'d3', label:'Day 3', sub:'Upper 2', type:'upper',
+    exercises:[
+      { id:'press2', name:'Full ROM Press or Incline Press', opt:false,
+        opts:'DB Full ROM Flat · Cambered Bar Flat · Incline DB · Incline Cambered Bar',
+        sets:3, reps:'Flat: match Day 1 @ 80% · Incline: 8–12', rest:150, prog:'DDP (Incline) / Match Day 1 (Flat)',
+        scheme:'Flat variation: same sets & reps as Day 1 at 80% of Day 1 load. Incline: 3–4 sets × 8–12. Newer lifters → Incline is the default.',
+        note:'DB Full ROM: angle dumbbells to 45° at chest for full stretch, ¾ reps (skip lockout) for pec tension. Incline: forcefully lock out each rep — it\'s harder here, which builds lockout strength. Lower bar to the clavicle.' },
+      { id:'squat_c', name:'Paused Squat (Plan C — 2× frequency)', opt:true,
+        opts:'Paused version of your Day 2 squat at 75–80% of Day 2 load',
+        sets:3, reps:'Match Day 2 set count', rest:180, prog:'Triple Progression',
+        scheme:'Plan C (3×/week) lifters only. Match Day 2 set count at 75–80% load.',
+        note:'Less rest before next squat session, so reduce load. Medium intensity — focus 100% on form quality. If it feels too easy, slow your tempo instead of adding weight. This is practice reps, not a max effort session.' },
+      { id:'pull2', name:'Neutral Grip Pull-Up / Pulldown / Diagonals', opt:false,
+        opts:'Neutral Grip Pull-Up · Neutral Pulldown · Single-Arm Diagonal Pulldown · Rack Chins',
+        sets:3, reps:'8–12', rest:150, prog:'Dynamic Double Progression',
+        scheme:'3 straight sets.',
+        note:'Different angle than Day 1\'s wide grip — targets lower lats more. Advanced lifters → diagonal pulldowns or rack chins. Diagonal: angle bench 70–80°, line up cable at same angle, slow down as range of motion drops.' },
+      { id:'squeezecurl', name:'Spider Curl / Standing Cable Curl', opt:false,
+        opts:'Spider Curl · Standing Cable Curl',
+        sets:3, reps:'10–15', rest:105, prog:'Dynamic Double Progression',
+        scheme:'3 straight sets. Squeeze-biased — works the shortened range of motion.',
+        note:'Spider curl: imagine your elbows are trapped against a glass wall in front of you — this prevents it turning into a row. Cable curl: set the angle so it\'s hardest at peak contraction (lockout). Complements Day 1\'s stretch-biased work.' },
+      { id:'preacher_opt', name:'Preacher Curl — Stretch Focus', opt:true,
+        opts:'DB Supinated Preacher Curl · DB Preacher Hammer Curl',
+        sets:2, reps:'10–15', rest:120, prog:'Dynamic Double Progression',
+        scheme:'2–3 sets. Skip this if you are adding the optional squats + ham curls — workout will be too long.',
+        note:'3rd bicep session of the week — you\'re already pumped going in. Keep it controlled. Butt and armpits glued to the bench. Wrists curled up for stretch and safety. Lower under tension every single rep.' },
+      { id:'tris2', name:'Incline Triceps Work', opt:false,
+        opts:'Incline Pressdowns · Incline Extensions · Incline JM Press',
+        sets:3, reps:'8–12', rest:120, prog:'Dynamic Double Progression',
+        scheme:'3 sets. Set bench to 60–70°. Pick a DIFFERENT implement than Day 1.',
+        note:'Same form cues as Day 1 but different joint angle and implement. Incline pressdowns: straight bar is usually better tolerated here. The slight angle change ensures you\'re hitting the triceps from a fresh stimulus.' },
+      { id:'seatedham_c', name:'Seated Ham Curl (Plan C — 2× frequency)', opt:true,
+        opts:'Seated Hamstring Curl Machine',
+        sets:2, reps:'8–12', rest:120, prog:'Dynamic Double Progression',
+        scheme:'Plan C lifters only. 2–3 sets. Optional cluster set.',
+        note:'Less recovery time between sessions so start slightly lighter than you think. Lean forward and hinge at hips to pre-stretch the hamstrings. Pause for a full 1 count at the lengthened position. Do NOT pause at the top (shortened) position.' },
+      { id:'obliques', name:'Oblique Leg Raises (Core)', opt:false,
+        opts:'Hanging · Floor · Dip Tower',
+        sets:3, reps:'10–15', rest:90, prog:'Double Progression',
+        scheme:'3 sets or optional cluster set. Skip if doing added leg work above.',
+        note:'Same movement as the normal leg raises but flex into one side (obliques) as you raise. Raise ¾ only. Pause at both the top and bottom of each rep. Slow down as the burn kicks in.' }
+    ]
+  },
+  {
+    id:'d4', label:'Day 4', sub:'Lower', type:'lower',
+    exercises:[
+      { id:'squat_paused', name:'Paused Squat', opt:false,
+        opts:'Paused version of Day 2 squat at 80–85% of Day 2 load',
+        sets:3, reps:'Match Day 2 set count', rest:180, prog:'Triple Progression',
+        scheme:'80–85% of Day 2 load. All Day 2 form cues apply, plus add a pause at the bottom.',
+        note:'MEDIUM intensity. This is "perfect practice makes perfect" — crisp, clean reps at a manageable load. Do not try to match Day 2 difficulty. If it feels too light, slow your tempo when the burn kicks in rather than adding weight.' },
+      { id:'adductor', name:'Hip Adductor Machine / Cossack Squats', opt:false,
+        opts:'Hip Adductor Machine (preferred) · Cossack Squats',
+        sets:3, reps:'10–12', rest:120, prog:'Double Progression',
+        scheme:'3 straight sets.',
+        note:'The stretched position is the priority — short pause when legs are fully open. End the set when you can\'t close your legs at least ¾ of the way. Cossack squats: start with bodyweight only because they will make you very sore. Push range of motion deeper over time.' },
+      { id:'sissy_leg', name:'Sissy Squats / Leg Extensions', opt:true,
+        opts:'Sissy Squats (beat Day 2) · Leg Extensions (2–3 × 10–15, 90 sec rest)',
+        sets:2, reps:'Beat Day 2 / 10–15', rest:90, prog:'Beat last session / Double Progression',
+        scheme:'Option to do cluster set here if you did straight sets on Day 2.',
+        note:'' },
+      { id:'laterals_d4', name:'Lateral Raises (Bonus)', opt:true,
+        opts:'Any side delt variation from Day 1',
+        sets:3, reps:'Beat Day 1 log', rest:60, prog:'Beat last session',
+        scheme:'Repeat your Day 1 side delt workout and just beat the numbers.',
+        note:'No hip hinges or heavy back work today, so there is room to sneak in extra side delts if you want them.' },
+      { id:'seatedham', name:'Seated Hamstring Curls', opt:false,
+        opts:'Seated Hamstring Curl Machine',
+        sets:2, reps:'8–12', rest:120, prog:'Dynamic Double Progression',
+        scheme:'2–3 sets. Optional cluster set for more experienced lifters.',
+        note:'Lean forward and hinge at hips to pre-stretch. Pause a FULL 1 count at the lengthened position. Do not pause at the top. Advanced option: also pause the concentric right after breaking the weight from the stack — double-paused curls. Absolutely brutal.' },
+      { id:'calves2', name:'Calves', opt:false,
+        opts:'Same protocol as Day 2',
+        sets:1, reps:'Beat Day 2 reps', rest:0, prog:'Beat last session',
+        scheme:'1 set. Same 3-sec bottom pause protocol. Beat your Day 2 rep count.',
+        note:'Full stretch → 3-second pause at the very bottom → raise only halfway → repeat to failure. One rest pause allowed. Beat last session\'s rep count.' }
+    ]
+  },
+  {
+    id:'d5', label:'Day 5', sub:'Upper 3', type:'upper',
+    exercises:[
+      { id:'dips_chins', name:'Dips / Push-Ups  +  Chin-Ups  [SUPERSET]', opt:false,
+        opts:'Dips or Deficit Push-Ups  +  BW Chin-Ups or Assisted Chin-Ups',
+        sets:3, reps:'AMRAP each', rest:120, prog:'Double Progression (add weight at 20 reps)',
+        scheme:'3 supersets, 2 min rest between. Optional: giant set with weighted crunches.',
+        note:'Dips: forward lean for chest bias, pause at the top AND bottom, slow your reps more and more as you approach failure. Push-ups: ¾ reps for pec tension OR protract at lockout for serratus. Chins: pull to sternum, arch back, lower under control.' },
+      { id:'arm_ss', name:'Incline Curl  +  Incline Triceps Ext  [SUPERSET]', opt:false,
+        opts:'Incline DB/Cable Curl  +  Incline DB Ext / EZ Bar Ext / Single-Arm Pressdown',
+        sets:2, reps:'10–15 each', rest:120, prog:'Dynamic Double Progression',
+        scheme:'2–3 supersets. LIGHT loads — this is your 3rd arm session of the week.',
+        note:'Third time training arms this week — filling gaps, not making big strokes. Control every rep. Single-arm pressdown: press directly into the long head, hold contraction for 1–2 sec. Incline curls: no heaving with hips or shrugging from traps.' },
+      { id:'reardelt', name:'Rear Delt Fly / Powell Raise / Rev Pec Deck', opt:true,
+        opts:'Rear Delt Fly · Powell Raise · Reverse Pec Deck',
+        sets:2, reps:'10–15', rest:90, prog:'Dynamic Double Progression',
+        scheme:'2–3 sets. Optional 3–5 min cluster set.',
+        note:'Add this once your pulling strength is solid but rear delt development lags. Cluster set option: use heavier loading but allow partial reps at the end of each cluster.' },
+      { id:'crunches', name:'Weighted Crunches (Core)', opt:false,
+        opts:'Any weighted crunch variation',
+        sets:3, reps:'AMRAP', rest:90, prog:'DDP — add weight when you hit 20 reps',
+        scheme:'3 sets. Optional: giant set with Dips/Push-Ups/Chin-Ups.',
+        note:'Don\'t skip abs. Giant setting with the calisthenics saves time. Add weight when you consistently hit 20 reps across sets.' }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let activeDay = localStorage.getItem('gw_day') || 'd1';
+let useKg = localStorage.getItem('gw_unit') === 'kg';
+
+let timerInterval = null;
+let timerSecs = 0;
+let timerPaused = false;
+
+function fmtTime(s) {
+  if (!s) return '—';
+  const m = Math.floor(s/60), r = s%60;
+  return r === 0 ? `${m}min` : `${m}:${r.toString().padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// SESSION DATA (localStorage)
+// ═══════════════════════════════════════════════════════
+function getSession() {
+  try { return JSON.parse(localStorage.getItem('gw_session') || '{}'); } catch { return {}; }
+}
+function saveSession(d) { localStorage.setItem('gw_session', JSON.stringify(d)); }
+function exKey(dayId, exId) { return `${dayId}__${exId}`; }
+function getExData(dayId, exId) { return getSession()[exKey(dayId,exId)] || []; }
+function setExData(dayId, exId, sets) {
+  const s = getSession();
+  s[exKey(dayId,exId)] = sets;
+  saveSession(s);
+}
+
+// ═══════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════
+function startTimer(secs) {
+  if (!secs) return;
+  clearInterval(timerInterval);
+  timerSecs = secs;
+  timerPaused = false;
+  document.getElementById('timerWrap').classList.add('show');
+  document.getElementById('tPause').textContent = '⏸';
+  renderTimerDisplay();
+  timerInterval = setInterval(() => {
+    if (timerPaused) return;
+    timerSecs--;
+    renderTimerDisplay();
+    if (timerSecs <= 0) {
+      clearInterval(timerInterval);
+      beep(); vibrate();
+      const el = document.getElementById('tCount');
+      el.className = 't-count done';
+      el.textContent = 'GO!';
+    }
+  }, 1000);
+}
+function setTimer(secs) { startTimer(secs); }
+function renderTimerDisplay() {
+  const el = document.getElementById('tCount');
+  el.className = 't-count' + (timerSecs <= 10 && timerSecs > 0 ? ' low' : '');
+  const m = Math.floor(timerSecs/60), s = timerSecs%60;
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+}
+function togglePause() {
+  timerPaused = !timerPaused;
+  document.getElementById('tPause').textContent = timerPaused ? '▶' : '⏸';
+}
+function dismissTimer() {
+  clearInterval(timerInterval);
+  timerSecs = 0; timerPaused = false;
+  document.getElementById('timerWrap').classList.remove('show');
+}
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const g = ctx.createGain(); g.gain.value = 0.25; g.connect(ctx.destination);
+    [[0,660],[150,660],[300,880]].forEach(([delay,freq]) => {
+      const o = ctx.createOscillator();
+      o.frequency.value = freq; o.type = 'sine'; o.connect(g);
+      o.start(ctx.currentTime + delay/1000);
+      o.stop(ctx.currentTime + (delay+110)/1000);
+    });
+  } catch(e){}
+}
+function vibrate() {
+  if ('vibrate' in navigator) navigator.vibrate([100,60,100,60,200]);
+}
+
+// ═══════════════════════════════════════════════════════
+// UNIT TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleUnit() {
+  useKg = !useKg;
+  localStorage.setItem('gw_unit', useKg ? 'kg' : 'lbs');
+  const b = document.getElementById('unitBtn');
+  b.textContent = useKg ? 'KG' : 'LBS';
+  b.classList.toggle('active', useKg);
+  // refresh labels in open loggers
+  document.querySelectorAll('.inp-lbl').forEach(el => {
+    if (el.textContent.startsWith('Weight')) el.textContent = `Weight (${useKg?'kg':'lbs'})`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════
+function renderNav() {
+  const nav = document.getElementById('bottomNav');
+  let html = DAYS.map(d => `
+    <button class="nav-btn${d.id===activeDay?' active':''}" onclick="switchDay('${d.id}')">
+      <span class="nav-day">${d.label.replace('Day ','')}</span>
+      <span class="nav-sub">${d.sub}</span>
+    </button>`).join('');
+  html += `<button class="nav-btn${activeDay==='info'?' active':''}" onclick="switchDay('info')">
+    <span class="nav-day">?</span>
+    <span class="nav-sub">Guide</span>
+  </button>`;
+  nav.innerHTML = html;
+}
+
+function switchDay(id) {
+  activeDay = id;
+  localStorage.setItem('gw_day', id);
+  renderNav();
+  renderContent();
+  document.getElementById('scrollArea').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTENT RENDER
+// ═══════════════════════════════════════════════════════
+function renderContent() {
+  const area = document.getElementById('scrollArea');
+  if (activeDay === 'info') { area.innerHTML = infoHTML(); attachFAQ(); return; }
+  const day = DAYS.find(d => d.id === activeDay);
+  if (!day) return;
+  const badges = {upper:'badge-upper',lower:'badge-lower',both:'badge-both'};
+  const bLabels = {upper:'Upper',lower:'Lower',both:'Back + Legs'};
+  let html = `<div class="day-hdr">
+    <span class="day-hdr-title">${day.label} — ${day.sub}</span>
+    <span class="type-badge ${badges[day.type]}">${bLabels[day.type]}</span>
+  </div>`;
+  day.exercises.forEach((ex, i) => {
+    const saved = getExData(day.id, ex.id);
+    html += exCardHTML(day.id, ex, i+1, saved);
+  });
+  area.innerHTML = html;
+}
+
+function exCardHTML(dayId, ex, num, saved) {
+  const restChip = ex.rest ? `<span class="chip c-rest">Rest ${fmtTime(ex.rest)}</span>` : '';
+  const bodyHTML = `
+    <div class="ex-body">
+      <div class="info-row"><strong>Options:</strong> ${ex.opts}</div>
+      <div class="info-row"><strong>Scheme:</strong> ${ex.scheme}</div>
+      ${ex.note ? `
+      <button class="note-toggle-btn" onclick="toggleNote('${ex.id}')">
+        Form &amp; Coach Notes <span id="ntlbl_${ex.id}">▼ show</span>
+      </button>
+      <div class="note-body" id="note_${ex.id}">${ex.note}</div>` : ''}
+      <div class="logger">
+        ${loggerHTML(dayId, ex, saved)}
+      </div>
+    </div>`;
+  return `<div class="ex-card" id="card_${ex.id}">
+    <div class="ex-hdr" onclick="toggleEx('${ex.id}')">
+      <div class="ex-meta">
+        <div class="ex-n">Exercise ${num}</div>
+        ${ex.opt ? '<div class="ex-opt-tag">Optional</div>' : ''}
+        <div class="ex-name">${ex.name}</div>
+        <div class="chips">
+          <span class="chip c-sets">${ex.sets} sets</span>
+          <span class="chip c-reps">${ex.reps}</span>
+          ${restChip}
+          <span class="chip c-prog">${ex.prog}</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    ${bodyHTML}
+  </div>`;
+}
+
+function loggerHTML(dayId, ex, saved) {
+  const n = Math.max(ex.sets, saved.length || 0);
+  let rows = '';
+  for (let i = 0; i < n; i++) {
+    const sv = saved[i] || {};
+    const wv = sv.w || '', rv = sv.r || '';
+    const done = sv.done || false;
+    const pre = (wv || rv) && !done;
+    rows += `<div class="set-row${done?' is-done':''}" id="sr_${dayId}_${ex.id}_${i}">
+      <div class="s-num">S${i+1}</div>
+      <div class="inp-wrap">
+        <div class="inp-lbl">Weight (${useKg?'kg':'lbs'})</div>
+        <input type="number" inputmode="decimal" class="s-inp${pre?' last':''}"
+          id="w_${dayId}_${ex.id}_${i}" value="${wv}"
+          onchange="onInput('${dayId}','${ex.id}',${i})"
+          onfocus="this.classList.remove('last')">
+      </div>
+      <div class="inp-wrap">
+        <div class="inp-lbl">Reps</div>
+        <input type="number" inputmode="numeric" class="s-inp${pre?' last':''}"
+          id="r_${dayId}_${ex.id}_${i}" value="${rv}"
+          onchange="onInput('${dayId}','${ex.id}',${i})"
+          onfocus="this.classList.remove('last')">
+      </div>
+      <button class="done-btn${done?' done':''}" id="db_${dayId}_${ex.id}_${i}"
+        onclick="markDone('${dayId}','${ex.id}',${i},${ex.rest})">
+        ${done?'✓':'○'}
+      </button>
+    </div>`;
+  }
+  const restBtns = ex.rest ? `<div class="rest-row">
+    <button class="rest-btn main" onclick="startTimer(${ex.rest})">▶ Start ${fmtTime(ex.rest)}</button>
+    ${ex.rest!==90?`<button class="rest-btn" onclick="startTimer(90)">1:30</button>`:''}
+    ${ex.rest!==120?`<button class="rest-btn" onclick="startTimer(120)">2:00</button>`:''}
+    ${ex.rest!==180?`<button class="rest-btn" onclick="startTimer(180)">3:00</button>`:''}
+  </div>` : '';
+  return `<div class="logger-top">
+    <span class="logger-label">Log Sets</span>
+    <div class="log-actions">
+      <button class="act-btn add" onclick="addSet('${dayId}','${ex.id}')">+ Set</button>
+      <button class="act-btn clr" onclick="clearEx('${dayId}','${ex.id}')">Clear</button>
+    </div>
+  </div>
+  <div id="rows_${dayId}_${ex.id}">${rows}</div>
+  ${restBtns}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// TOGGLE HANDLERS
+// ═══════════════════════════════════════════════════════
+function toggleEx(exId) {
+  const card = document.getElementById('card_'+exId);
+  if (!card) return;
+  card.classList.toggle('open');
+  // Smooth scroll to card when opening
+  if (card.classList.contains('open')) {
+    setTimeout(() => card.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  }
+}
+
+function toggleNote(exId) {
+  const nb = document.getElementById('note_'+exId);
+  const lbl = document.getElementById('ntlbl_'+exId);
+  if (!nb) return;
+  const showing = nb.classList.toggle('show');
+  if (lbl) lbl.textContent = showing ? '▲ hide' : '▼ show';
+}
+
+// ═══════════════════════════════════════════════════════
+// LOGGER HANDLERS
+// ═══════════════════════════════════════════════════════
+function onInput(dayId, exId, idx) {
+  const w = document.getElementById(`w_${dayId}_${exId}_${idx}`)?.value||'';
+  const r = document.getElementById(`r_${dayId}_${exId}_${idx}`)?.value||'';
+  const sets = getExData(dayId, exId);
+  while (sets.length <= idx) sets.push({});
+  sets[idx] = {...sets[idx], w, r};
+  setExData(dayId, exId, sets);
+}
+
+function markDone(dayId, exId, idx, restSecs) {
+  onInput(dayId, exId, idx); // save current values
+  const sets = getExData(dayId, exId);
+  while (sets.length <= idx) sets.push({});
+  sets[idx].done = !sets[idx].done;
+  setExData(dayId, exId, sets);
+  const btn = document.getElementById(`db_${dayId}_${exId}_${idx}`);
+  const row = document.getElementById(`sr_${dayId}_${exId}_${idx}`);
+  if (btn) { btn.classList.toggle('done', sets[idx].done); btn.textContent = sets[idx].done ? '✓' : '○'; }
+  if (row) row.classList.toggle('is-done', sets[idx].done);
+  [`w_${dayId}_${exId}_${idx}`,`r_${dayId}_${exId}_${idx}`].forEach(id => document.getElementById(id)?.classList.remove('last'));
+  if (sets[idx].done && restSecs) startTimer(restSecs);
+}
+
+function addSet(dayId, exId) {
+  const sets = getExData(dayId, exId);
+  const last = sets[sets.length-1] || {};
+  sets.push({w: last.w||'', r:'', done:false});
+  setExData(dayId, exId, sets);
+  const day = DAYS.find(d => d.id === dayId);
+  const ex = day?.exercises.find(e => e.id === exId);
+  const container = document.getElementById(`rows_${dayId}_${exId}`);
+  if (!container || !ex) return;
+  const i = sets.length-1;
+  const sv = sets[i];
+  const div = document.createElement('div');
+  div.className = 'set-row';
+  div.id = `sr_${dayId}_${exId}_${i}`;
+  div.innerHTML = `
+    <div class="s-num">S${i+1}</div>
+    <div class="inp-wrap">
+      <div class="inp-lbl">Weight (${useKg?'kg':'lbs'})</div>
+      <input type="number" inputmode="decimal" class="s-inp${sv.w?' last':''}"
+        id="w_${dayId}_${exId}_${i}" value="${sv.w||''}"
+        onchange="onInput('${dayId}','${exId}',${i})"
+        onfocus="this.classList.remove('last')">
+    </div>
+    <div class="inp-wrap">
+      <div class="inp-lbl">Reps</div>
+      <input type="number" inputmode="numeric" class="s-inp"
+        id="r_${dayId}_${exId}_${i}" value=""
+        onchange="onInput('${dayId}','${exId}',${i})">
+    </div>
+    <button class="done-btn" id="db_${dayId}_${exId}_${i}"
+      onclick="markDone('${dayId}','${exId}',${i},${ex.rest})">○</button>`;
+  container.appendChild(div);
+  setTimeout(() => div.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+}
+
+function clearEx(dayId, exId) {
+  if (!confirm('Clear logged data for this exercise?')) return;
+  const session = getSession();
+  delete session[exKey(dayId, exId)];
+  saveSession(session);
+  const day = DAYS.find(d => d.id === dayId);
+  const ex = day?.exercises.find(e => e.id === exId);
+  const container = document.getElementById(`rows_${dayId}_${exId}`);
+  if (container && ex) container.innerHTML = loggerSetRows(dayId, ex, []);
+}
+
+function loggerSetRows(dayId, ex, saved) {
+  const n = Math.max(ex.sets, saved.length || 0);
+  let rows = '';
+  for (let i = 0; i < n; i++) {
+    rows += `<div class="set-row" id="sr_${dayId}_${ex.id}_${i}">
+      <div class="s-num">S${i+1}</div>
+      <div class="inp-wrap">
+        <div class="inp-lbl">Weight (${useKg?'kg':'lbs'})</div>
+        <input type="number" inputmode="decimal" class="s-inp"
+          id="w_${dayId}_${ex.id}_${i}" value=""
+          onchange="onInput('${dayId}','${ex.id}',${i})">
+      </div>
+      <div class="inp-wrap">
+        <div class="inp-lbl">Reps</div>
+        <input type="number" inputmode="numeric" class="s-inp"
+          id="r_${dayId}_${ex.id}_${i}" value=""
+          onchange="onInput('${dayId}','${ex.id}',${i})">
+      </div>
+      <button class="done-btn" id="db_${dayId}_${ex.id}_${i}"
+        onclick="markDone('${dayId}','${ex.id}',${i},${ex.rest})">○</button>
+    </div>`;
+  }
+  return rows;
+}
+
+// ═══════════════════════════════════════════════════════
+// INFO PAGE
+// ═══════════════════════════════════════════════════════
+function infoHTML() {
+  return `<div class="info-pg">
+    <div style="margin-bottom:14px">
+      <div class="faq-section-title">Plans A / B / C</div>
+      <div class="plans-grid">
+        <div class="plan-c"><div class="plan-l">A</div><div class="plan-d">5 days/week</div><div class="plan-t">All 5 days. Max results.</div></div>
+        <div class="plan-c"><div class="plan-l">B</div><div class="plan-d">4 days/week</div><div class="plan-t">Days 1–4. Stop after Day 4.</div></div>
+        <div class="plan-c"><div class="plan-l">C</div><div class="plan-d">3 days/week</div><div class="plan-t">Days 1–3. 2× freq on everything.</div></div>
+      </div>
+      <div class="info-note">
+        <strong>Rep rotation:</strong> Every 4 weeks: 12 → 8 → 5 reps on main compound lifts.<br>
+        <strong>Deload:</strong> Reduce load ~10% and cut sets when performance regresses despite good sleep &amp; food. Or just run a 3-day week.
+      </div>
+    </div>
+
+    <div class="faq-section-title">Progression Methods</div>
+
+    <div class="faq-item open" id="faq_dp">
+      <div class="faq-q">Double Progression (DP)</div>
+      <div class="faq-a">
+        Add reps each week until you hit the top of the range across all sets. Then add weight and start from the bottom again.
+        <div class="eg"><strong>3 × 8–12 example:</strong><br>Week 1 → 3×8 @ 100lb<br>Week 2 → 3×9 @ 100lb<br>…Week 5 → 3×12 @ 100lb<br>Week 6 → 3×8 @ 105lb</div>
+        Start conservatively — a few reps in reserve on week 1. Always better to have room to grow than to hit a wall immediately.
+      </div>
+    </div>
+
+    <div class="faq-item" id="faq_ddp">
+      <div class="faq-q">Dynamic Double Progression (DDP)</div>
+      <div class="faq-a">
+        Each individual set progresses on its own. When a single set hits the top of the rep range, add weight to <em>that set only</em> next session. Other sets catch up independently.
+        <div class="eg"><strong>8–12 range example:</strong><br>Wk1: 3×8 @ 200<br>Wk2: Set1 → 12@200 ✓(add wt next) · Set2 → 10@200 · Set3 → 9@200<br>Wk3: Set1 → 8@210 · Set2 → 12@200 ✓ · Set3 → 10@200</div>
+      </div>
+    </div>
+
+    <div class="faq-item" id="faq_tp">
+      <div class="faq-q">Triple Progression (TP)</div>
+      <div class="faq-a">
+        Same as Double Progression but rep quality counts as a progress metric too. Progress in this exact order:
+        <ol>
+          <li>Add reps</li>
+          <li>Clean up form / improve rep quality</li>
+          <li>Add weight — only after adding 3–4 clean reps over your baseline</li>
+        </ol>
+        Top sets and back-off sets progress independently. Back-off sets typically progress (add reps + weight) much faster than the top set.
+      </div>
+    </div>
+
+    <div class="faq-item" id="faq_cluster">
+      <div class="faq-q">Cluster Sets</div>
+      <div class="faq-a">
+        Pick a song that's 3–5 minutes long. Do clusters of <strong>3–5 reps</strong> with only <strong>5–10 seconds rest</strong> between clusters. Repeat until the song ends.
+        <br><br>Best for lighter movements like leg raises, sissy squats, hamstring curls, and rear delts. A small amount of form breakdown at the very end of a cluster is acceptable — but don't aim for it.
+      </div>
+    </div>
+
+    <div class="faq-item" id="faq_rpe">
+      <div class="faq-q">RPE Scale (Rate of Perceived Exertion)</div>
+      <div class="faq-a">
+        <table class="rpe-table">
+          <tr><th>RPE</th><th>Meaning</th></tr>
+          <tr><td>10</td><td>Concentric failure</td></tr>
+          <tr><td>9</td><td>1 rep left in tank</td></tr>
+          <tr><td>8</td><td>2 reps left — hard</td></tr>
+          <tr><td>7</td><td>3 reps left — challenging</td></tr>
+          <tr><td>6</td><td>4+ reps left — good for deloads &amp; early weeks</td></tr>
+          <tr><td>≤5</td><td>Waste of a set</td></tr>
+        </table>
+        <br>Hit the prescribed RPE on your top set only during the first week of a new rep range (12s, 8s, 5s). Switch to Triple Progression from week 2 onward.
+      </div>
+    </div>
+
+    <div class="faq-item" id="faq_deload">
+      <div class="faq-q">When to Deload</div>
+      <div class="faq-a">
+        Deload when performance <strong>regresses or stagnates despite adequate sleep, calories, and stress management.</strong> Other signals: declining sleep quality or reduced appetite.
+        <br><br>General tiredness or soreness that doesn't actually affect your training = normal fatigue, NOT a deload signal.
+        <br><br><strong>How to deload:</strong> Reduce load ~10% and cut sets only on sessions that feel off. Rarely need a full deload week — just fix the sessions that need it, or run a normal 3-day week.
+      </div>
+    </div>
+
+    <div class="faq-item" id="faq_noprog">
+      <div class="faq-q">Not Progressing? Check This First</div>
+      <div class="faq-a">
+        Audit honestly before touching volume:
+        <ol>
+          <li>Eating enough? (gained weight in past few months?)</li>
+          <li>Sleeping enough?</li>
+          <li>Drinking enough water + electrolytes?</li>
+          <li>Eating something before training?</li>
+          <li>Actually following the progressions correctly?</li>
+          <li>Effort genuinely where it needs to be?</li>
+          <li>Variation been running 6–8 weeks and only recently stalled?</li>
+        </ol>
+        If all of those genuinely check out → add <strong>ONE set</strong>. Not two. Not four. One.
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:20px 0 8px;color:#444;font-size:0.72rem">
+      Golden Warrior by Bald Omni Man
+    </div>
+  </div>`;
+}
+
+function attachFAQ() {
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+if (useKg) {
+  document.getElementById('unitBtn').textContent = 'KG';
+  document.getElementById('unitBtn').classList.add('active');
+}
+renderNav();
+renderContent();
+</script>
+</body>
+</html>
