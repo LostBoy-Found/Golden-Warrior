@@ -36,10 +36,13 @@
 -webkit-tap-highlight-color:transparent;
 touch-action:manipulation;}
 html{color-scheme:dark;}
-html,body{height:100%;overflow:hidden;}
+html,body{height:100%;overflow:hidden;background:#000;}
+/* Force iOS to never apply system button/input styling */
+button{-webkit-appearance:none;appearance:none;font-family:inherit;}
+input{-webkit-appearance:none;appearance:none;font-family:inherit;}
 body{
-background:var(–bg);
-color:var(–t1);
+background:#000000;
+color:#ffffff;
 font-family:var(–font);
 font-size:15px;
 -webkit-font-smoothing:antialiased;
@@ -64,15 +67,16 @@ display:flex;align-items:center;gap:7px;
 .header-sword{color:var(–gold);}
 .icon-btn{
 height:32px;min-width:32px;
-background:var(–s2);border:none;border-radius:16px;
+background:#2C2C2E;border:none;border-radius:16px;
 padding:0 12px;
-color:var(–t2);font-family:var(–font);
+color:rgba(235,235,245,0.62);font-family:var(–font);
 font-size:14px;font-weight:600;
 letter-spacing:0.01em;cursor:pointer;
+-webkit-appearance:none;appearance:none;
 transition:background .12s, color .12s;
 display:flex;align-items:center;justify-content:center;
 }
-.icon-btn.active{color:var(–gold);background:var(–gold-bg);}
+.icon-btn.active{color:#D4A017;background:rgba(212,160,23,0.12);}
 .icon-btn:active{opacity:.65;}
 
 /* ── REST TIMER ── */
@@ -137,10 +141,10 @@ padding-bottom:env(safe-area-inset-bottom,0px);
 .nav-item{
 flex:1;display:flex;flex-direction:column;
 align-items:center;justify-content:center;
-border:none;background:none;color:var(–t3);
+border:none;background:none;color:rgba(235,235,245,0.30);
 cursor:pointer;gap:2px;transition:color .15s;
 }
-.nav-item.active{color:var(–gold);}
+.nav-item.active{color:#D4A017;}
 .nav-item:active{opacity:.6;}
 .nav-d{font-size:17px;font-weight:800;line-height:1;letter-spacing:-0.01em;}
 .nav-s{font-size:9px;font-weight:600;text-transform:uppercase;
@@ -366,7 +370,8 @@ letter-spacing:.01em;transition:opacity .15s;
 .btn-start{
 width:100%;font-family:var(–font);font-size:15px;font-weight:700;
 padding:14px;border-radius:var(–r);border:none;cursor:pointer;
-background:var(–green);color:#000;letter-spacing:.01em;
+background:#30D158;color:#000000;letter-spacing:.01em;
+-webkit-appearance:none;appearance:none;
 transition:opacity .15s;
 }
 .btn-start:active{opacity:.75;}
